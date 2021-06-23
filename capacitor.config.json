@@ -1,0 +1,16 @@
+{
+  "appId": "io.ionic.starter",
+  "appName": "ionic-vee-validate",
+  "bundledWebRuntime": false,
+  "npmClient": "yarn",
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  },
+  "cordova": {
+    "plugins": {}
+  },
+  "linuxAndroidStudioPath": "/opt/android-studio/bin/studio.sh"
+}
