@@ -30,7 +30,7 @@ Object.keys(rules).forEach(rule => {
 })
 
 // @FIXME request is call twice and call when fill other field
-defineRule('email_exists', async value => {
+defineRule('email_exists', value => {
   // const url = `http://chatdmvet.test:8885/api/check/${encodeURIComponent(value)}`
   // const result = await axios.get(url)
   // if (result.data.count > 0) {
@@ -39,6 +39,16 @@ defineRule('email_exists', async value => {
   console.info('i am trigger')
   console.info(value)
   return true
+})
+
+defineRule('custom_rule', value => {
+    console.info('custom_rule trigger')
+
+    if (value.includes('x')) {
+      return true
+    }
+
+    return 'value must contain a x'
 })
 
 const app = createApp(App)

@@ -14,28 +14,8 @@
       </ion-header>
 
       <div id="container">
-        <v-form v-slot="{ errors, values, isSubmitting }"
-            as="div"
-            :initial-values="form"
-            :validation-schema="schema">
-            <pre>
-             errors: {{ errors }}
-             values: {{ values }}
-             form: {{ form }}
-             isSubmitting:  {{ isSubmitting }}
-            </pre>
-            <form @submit="onSubmit">
+            <v-form @submit="onSubmit" as="form">
               <ion-list>
-                <ion-item lines="none">
-                  <v-field
-                    as="input"
-                    label="native"
-                    placeholder="native"
-                    name="native"
-                    type="text"
-                  />
-                  <v-error as="div" class="error" name="native" />
-                </ion-item>
                 <ion-item lines="none">
                   <v-field
                     as="ion-input"
@@ -44,22 +24,8 @@
                     name="email"
                     type="email"
                     inputmode="email"
-                    :rules="schema.values"
-                    @ionBlur="showMessage($event.target.value)"
                   />
                   <v-error as="div" class="error" name="email" />
-                </ion-item>
-                <ion-item lines="none">
-                  <v-field
-                    as="ion-input"
-                    label="other email"
-                    placeholder="other email"
-                    name="other_email"
-                    type="email"
-                    inputmode="email"
-                    @ionBlur="checkEmail($event.target.value, errors)"
-                  />
-                  <v-error as="div" class="error" name="other_email" />
                 </ion-item>
                 <ion-item class="white mb-2" lines="none">
                   <v-field
@@ -83,12 +49,11 @@
                   />
                 </ion-item>
                 <ion-item>
-                  <ion-button>
+                  <ion-button type="submit">
                     <ion-label>Submit</ion-label>
                   </ion-button>
                 </ion-item>
               </ion-list>
-            </form>
           </v-form>
       </div>
     </ion-content>
@@ -112,12 +77,12 @@ import {
   Form as VForm,
   Field as VField,
   ErrorMessage as VError,
-  useForm
+  // useForm
 } from 'vee-validate'
 import axios from 'axios'
 
 export default defineComponent({
-  name: 'Home',
+  name: 'FormTest',
   components: {
     IonContent,
     IonHeader,
@@ -133,8 +98,6 @@ export default defineComponent({
     VError
   },
   setup () {
-    const { setFieldError, handleSubmit } = useForm()
-
     const form = reactive({
       email: '',
       firstname: '',
@@ -142,38 +105,40 @@ export default defineComponent({
     })
 
     const schema = {
-      native: 'required|custom_rule',
-      email: 'required|email|email_exists',
+      email: 'required|email',
       firstname: 'required|min:2|max:20',
       lastname: 'required|min:2|max:64',
-      other_email: 'required|email'
     }
 
-    const checkEmail = async (email, errors) => {
+    const checkEmail = async (email) => {
       if (email) {
         const url = `http://chatdmvet.test:8885/api/check/${encodeURIComponent(email)}`
         const result = await axios.get(url)
         console.log(result)
-        console.log(errors)
         if (result.data.count > 0) {
-          await setFieldError('other_email', 'this email is already use')
-          errors.email = 'this email is already use'
-          alert('this email is already use')
+          return true
         }
       }
+
+      return false
     }
 
     const showMessage = mesg => {
       alert(mesg)
     }
 
-    const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    const onSubmit = async (values, actions) => {
+      console.log('handleSubmit >> ', values)
       if (values.email) {
-        await checkEmail(values.email)
+        const isExists = await checkEmail(values.email)
+        console.log('isExists >> ', isExists)
+        if (isExists) {
+          actions.setFieldError('email', 'this email is already in use')
+        } else {
+          actions.resetForm()
+        }
       }
-
-      resetForm()
-    })
+    }
 
     return {
       form,
